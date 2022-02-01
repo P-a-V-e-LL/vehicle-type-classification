@@ -1,5 +1,0 @@
-licence
-car
-cabin
-day
-night
