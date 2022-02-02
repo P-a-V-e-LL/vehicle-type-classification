@@ -1,6 +1,6 @@
 import os
 
-path = "/home/pavel/Desktop/University/Diplom/cars196/train"
+path = "" # root_dir folder to check
 i = 0
 l = []
 
