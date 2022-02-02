@@ -1,7 +1,7 @@
 
 #!/bin/bash
 
-TEMP_DIRNAME="temp"
+TEMP_DIRNAME="data"
 
 mkdir ${TEMP_DIRNAME} 
 cd ${TEMP_DIRNAME}
