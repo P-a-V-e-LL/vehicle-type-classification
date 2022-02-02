@@ -1,6 +1,6 @@
 import os
 
-path = "" # root_dir folder to check
+path = "" # root_dir/data folder to check
 i = 0
 l = []
 
