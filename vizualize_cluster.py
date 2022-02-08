@@ -14,7 +14,7 @@ from matplotlib import pyplot as plt
 #matplotlib.use("TkAgg")
 
 model_path = "../model_20211203_rmsprop.h5" #path to .h5 model
-path = "../dataset3.11_2/val" # data path
+path = "../dataset3.11_2/train" # data path
 
 model = load_model(model_path, compile=False)
 
@@ -35,9 +35,9 @@ def get_v(filename, model, required_size=(160, 160)):
 i = 0
 y = 0
 
-classes_count = 10 # len(os.listdir(path))
+classes_count = 20 # len(os.listdir(path))
 
-classes = os.listdir(path)[:10]
+classes = os.listdir(path)[:20]
 
 print("Counting embeddings...")
 
@@ -54,7 +54,7 @@ while i < classes_count:
     else:
       b = np.append(b, i)
     y += 1
-    print("...")
+    print(auto)
   i += 1
 
 e = a.reshape(y, 128)
@@ -68,6 +68,8 @@ vis_y = embeddings[:, 1]
 plt.figure(300) # открытие нового окна для отображения графика
 
 plt.scatter(vis_x, vis_y, c=b, cmap=plt.cm.get_cmap("jet", classes_count), marker='.')
-plt.colorbar(ticks=range(10))
+plt.colorbar(ticks=range(20))
 plt.clim(-0.5, 9.5)
-plt.show()
+fname = input("Enter a filename: ")
+plt.savefig(fname, dpi=300)
+#plt.show()

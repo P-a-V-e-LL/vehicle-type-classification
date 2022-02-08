@@ -10,3 +10,6 @@ scipy==1.4.1
 tensorflow==2.7.0
 tensorflow_addons==0.14.0
 tflite_runtime-2.5.0-cp37-cp37m-linux_x86_64.whl
+cmake==3.17.0
+cffi==1.14.1
+MulticoreTSNE==0.1
