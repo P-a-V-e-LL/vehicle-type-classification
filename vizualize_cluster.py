@@ -13,8 +13,11 @@ from matplotlib import pyplot as plt
 
 #matplotlib.use("TkAgg")
 
+fname = input("Enter a filename: ")
+
+#model_path = "../model_0902_cars196_250.h5"
 model_path = "../model_20211203_rmsprop.h5" #path to .h5 model
-path = "../dataset3.11_2/train" # data path
+path = "../dataset3.11_2/val" # data path
 
 model = load_model(model_path, compile=False)
 
@@ -35,9 +38,9 @@ def get_v(filename, model, required_size=(160, 160)):
 i = 0
 y = 0
 
-classes_count = 20 # len(os.listdir(path))
+classes_count = len(os.listdir(path))
 
-classes = os.listdir(path)[:20]
+classes = os.listdir(path) # [:30]
 
 print("Counting embeddings...")
 
@@ -61,15 +64,15 @@ e = a.reshape(y, 128)
 
 print("Consuming results...")
 
-embeddings = TSNE(n_jobs=4).fit_transform(e)
+embeddings = TSNE(n_jobs=16).fit_transform(e)
 vis_x = embeddings[:, 0]
 vis_y = embeddings[:, 1]
 
 plt.figure(300) # открытие нового окна для отображения графика
 
 plt.scatter(vis_x, vis_y, c=b, cmap=plt.cm.get_cmap("jet", classes_count), marker='.')
-plt.colorbar(ticks=range(20))
-plt.clim(-0.5, 9.5)
-fname = input("Enter a filename: ")
+plt.colorbar(ticks=range(classes_count))
+plt.clim(-0.5, classes_count-0.5)
+#fname = input("Enter a filename: ")
 plt.savefig(fname, dpi=300)
 #plt.show()

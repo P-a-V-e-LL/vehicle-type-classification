@@ -1,2 +1,6 @@
 car_detect/
 data/
+env/
+cluster_images/
+models/model_20211203_rmsprop.h5
+embedding_data/
