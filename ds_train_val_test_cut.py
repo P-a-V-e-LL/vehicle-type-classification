@@ -1,17 +1,38 @@
 import numpy as np
 import os
 import shutil
+import argparse
 
 '''Распределить все классы по папкам train, val, test.'''
 
-dir = '/home/pavel/Desktop/University/Diplom/cars196/images (copy)'
-#curr_dir = '/home/pavel/Desktop/University/Diplom/cars196/images (copy)'
-train_dir = '/home/pavel/Desktop/University/Diplom/cars196/train'
-val_dir = '/home/pavel/Desktop/University/Diplom/cars196/val'
-#test_dir = '/home/pavel/Desktop/University/Diplom/ds1_dirs/test'
+def get_arguments():
+    ap = argparse.ArgumentParser()
+    ap.add_argument(
+        "--data_dir",
+        required=True,
+        help="Path to data."
+    )
+    ap.add_argument(
+        "--train_dir",
+        required=True,
+        help="Path to train location."
+    )
+    ap.add_argument(
+        "--val_dir",
+        required=True,
+        help="Path to val location."
+    )
+    ap.add_argument(
+        "--cut",
+        required=True,
+        default=0.2,
+        help="val data %"
+    )
+    return vars(ap.parse_args())
+
 test_dir = None
 
-def create_classes():
+def create_classes(dir, train_dir, val_dir):
     '''Создание папок train, val, (test) со всеми классами исходного датасета.'''
     for item in os.listdir(dir):
         os.makedirs(os.path.join(train_dir, item))
@@ -35,6 +56,11 @@ def copy_set(source_dir, train_dir, val_dir, test_dir, cut = 0.2):
         #for i in range(-1, -cut-1, -1):
         #    shutil.copy2(os.path.join(item, str(x[i])), os.path.join(test_dir, car_class))
 
-create_classes()
-copy_set(dir, train_dir, val_dir, test_dir)
-print('END')
+def main():
+
+    create_classes(args['data_dir'], args['train_dir'], args['val_dir'])
+    copy_set(args['data_dir'], args['train_dir'], args['val_dir'], test_dir)
+    print('END')
+
+if __name__ == '__main__':
+    main()

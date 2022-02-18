@@ -22,16 +22,22 @@ from itertools import groupby
 import tensorflow as tf
 import tflite_runtime.interpreter as tflite
 from PIL import Image
+import argparse
 
-#v_path = "car_detect/video/20210928_14_53_12_120sec_altai-raspberry-stend-6.ts"   # путь к видео, по котором будет производиться распознование и вырезка автомобилей
-#v_path = "20210728_15_55_03_120sec_altai-raspberry-stend-3.ts"
+onnx_path_demo = './car_detect/yolov4_2_3_512_512_static.onnx'   	 # путь к нейронной сети распознавания автомобилей (выделение классов)
+model_path = './car_detect/anpr_ru_one_linear_20210426.tflite'   	 # путь к нейронной сети распознавания номеров
+names_file = './car_detect/names.txt'                             	 # путь к файлу классов
+save_path = './car_detect/frames/'                  	 # путь для сохранения результатов работы программы
 
-path22 = "/home/pavel/Desktop/University/Diplom/car_detect/video/" 	 # путь к папке с видео
-onnx_path_demo = 'car_detect/yolov4_2_3_512_512_static.onnx'   	 # путь к нейронной сети распознавания автомобилей (выделение классов)
-model_path = 'car_detect/anpr_ru_one_linear_20210426.tflite'   	 # путь к нейронной сети распознавания номеров
-save_path = 'car_rectangle/unchecked_frames/'                  	 # путь для сохранения результатов работы программы
-names_file = 'car_detect/names.txt'                             	 # путь к файлу классов
-
+def get_arguments():
+    ap = argparse.ArgumentParser()
+    ap.add_argument(
+        "-vp",
+        "--video_path",
+        required=True,
+        help="Path to video folder."
+    )
+    return vars(ap.parse_args())
 
 def prep(session, image_src):
     IN_IMAGE_H = session.get_inputs()[0].shape[2]
@@ -323,12 +329,12 @@ def detect(session, image_src_1, image_src_2):
 
 '''MAIN BLOCK'''
 
-#path22 = "/home/pavel/Desktop/University/Diplom/car_detect/video/"
-
-for file in os.listdir(path22):
+for file in os.listdir(args['video_path']):
+    args = get_arguments()
+    os.makedirs('./car_detect/frames/', exist_ok=True)
     try:
-        v_path = os.path.join(path22, file)
-        new_name = os.path.join(path22, "(ok)"+file)
+        v_path = os.path.join(args['video_path'], file)
+        new_name = os.path.join(args['video_path'], "(ok)"+file)
         print("-"*20)
         print("STARTED", v_path)
         print("-"*20)

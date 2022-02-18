@@ -10,16 +10,29 @@ import numpy as np
 from numpy import expand_dims
 from MulticoreTSNE import MulticoreTSNE as TSNE
 from matplotlib import pyplot as plt
+import argparse
 
 #matplotlib.use("TkAgg")
 
-fname = input("Enter a filename: ")
-
-#model_path = "../model_0902_cars196_250.h5"
-model_path = "../model_20211203_rmsprop.h5" #path to .h5 model
-path = "../dataset3.11_2/val" # data path
-
-model = load_model(model_path, compile=False)
+def get_arguments():
+    ap = argparse.ArgumentParser()
+    ap.add_argument(
+        "-mp",
+        "--model_path",
+        required=True,
+        help="Path to .h5 keras model."
+    )
+    ap.add_argument(
+        "--root_dir",
+        required=True,
+        help="Path to data."
+    )
+    ap.add_argument(
+        "--filename",
+        required=True,
+        help="Data filename."
+    )
+    return vars(ap.parse_args())
 
 def get_v(filename, model, required_size=(160, 160)):
   image = Image.open(filename)
@@ -35,44 +48,48 @@ def get_v(filename, model, required_size=(160, 160)):
   yhat = model.predict(samples)
   return yhat[0]
 
-i = 0
-y = 0
+def main():
+    args = get_arguments()
 
-classes_count = len(os.listdir(path))
+    i = 0
+    y = 0
 
-classes = os.listdir(path) # [:30]
+    model = load_model(args['model_path'], compile=False)
 
-print("Counting embeddings...")
+    classes_count = len(os.listdir(args['root_dir']))
 
-while i < classes_count:
-  for auto in os.listdir(os.path.join(path, classes[i])):
-    o = os.path.join(path, classes[i])
-    o = os.path.join(o, auto)
-    if y == 0:
-      a = np.array([get_v(o, model)])
-    else:
-      a = np.append(a, get_v(o, model))
-    if y == 0:
-      b = np.array([i])
-    else:
-      b = np.append(b, i)
-    y += 1
-    print(auto)
-  i += 1
+    classes = os.listdir(args['root_dir'])
 
-e = a.reshape(y, 128)
+    print("Counting embeddings...")
 
-print("Consuming results...")
+    while i < classes_count:
+      for auto in os.listdir(os.path.join(args['root_dir'], classes[i])):
+        o = os.path.join(args['root_dir'], classes[i])
+        o = os.path.join(o, auto)
+        if y == 0:
+          a = np.array([get_v(o, model)])
+        else:
+          a = np.append(a, get_v(o, model))
+        if y == 0:
+          b = np.array([i])
+        else:
+          b = np.append(b, i)
+        y += 1
+        print(auto)
+      i += 1
 
-embeddings = TSNE(n_jobs=16).fit_transform(e)
-vis_x = embeddings[:, 0]
-vis_y = embeddings[:, 1]
+    e = a.reshape(y, 128)
 
-plt.figure(300) # открытие нового окна для отображения графика
+    print("Consuming results...")
 
-plt.scatter(vis_x, vis_y, c=b, cmap=plt.cm.get_cmap("jet", classes_count), marker='.')
-plt.colorbar(ticks=range(classes_count))
-plt.clim(-0.5, classes_count-0.5)
-#fname = input("Enter a filename: ")
-plt.savefig(fname, dpi=300)
-#plt.show()
+    embeddings = TSNE(n_jobs=16).fit_transform(e)
+    vis_x = embeddings[:, 0]
+    vis_y = embeddings[:, 1]
+
+    plt.figure(300) # открытие нового окна для отображения графика
+
+    plt.scatter(vis_x, vis_y, c=b, cmap=plt.cm.get_cmap("jet", classes_count), marker='.')
+    plt.colorbar(ticks=range(classes_count))
+    plt.clim(-0.5, classes_count-0.5)
+    plt.savefig(args['filename'], dpi=300)
+    #plt.show()

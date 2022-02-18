@@ -19,22 +19,53 @@ from tensorflow.keras import Model
 from tensorflow.keras.optimizers import Adam, SGD, RMSprop
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.callbacks import ReduceLROnPlateau
+import argparse
+
+def get_arguments():
+    ap = argparse.ArgumentParser()
+    ap.add_argument(
+        "-mp",
+        "--model_path",
+        required=True,
+        help="Path to .h5 keras model."
+    )
+    ap.add_argument(
+        "-td",
+        "--train_data",
+        required=True,
+        help="Path to training dataset."
+    )
+    ap.add_argument(
+        "-vd",
+        "--val_data",
+        required=True,
+        help="Path to val dataset."
+    )
+    ap.add_argument(
+        "--batch_size",
+        required=True,
+        default=128,
+        help="Batch size."
+    )
+    ap.add_argument(
+        "--epochs",
+        required=True,
+        help="Training epochs amount."
+    )
+    return vars(ap.parse_args())
 
 def _normalize_img(img, label):
     img = tf.cast(img, tf.float32) / 255.
     return (img, label)
 
+def check(path):
+    for folder in os.listdir(path):
+        n = os.path.join(path, folder)
+        i += len(os.listdir(n))
+    return i
 
 img_width, img_height = 160, 160 				# целевой размер изображения для обучения
-epochs = 250 							# количество эпох при обучении
-batch_size = 128 						# размер батча
-nb_train_samples = 47734 					# количество тренировочных изображений
-nb_val_samples = 3158 					# количество валидационных изображений
-
-train_dir = './car196/train' # './dataset3.11_2/train'    	# путь к обучающей выборке
-val_dir = './car196/val' # './dataset3.11_2/val'         	# путь к валидационной выборке
-model_path = '/home/inventos/neuroweb/datasets/to_serv/facenet_keras.h5'    # путь к исходной модели
-save_model_path = './'             				# путь к месту сохранения обученной модели
+save_model_path = './models/'             # путь к месту сохранения обученной модели
 
 
 def triplet_accuracy(y_true, y_pred):
@@ -58,51 +89,53 @@ def triplet_accuracy(y_true, y_pred):
     return (true_trues+true_falses)/(batch_size*batch_size)
 
 
-model = load_model(model_path)
-#model = clone_model(model)
+def main():
+    args = get_arguments()
+    nb_train_samples = check(args['train_data'])#47734
+    nb_val_samples = check(args['val_data'])
+    model = load_model(args['model_path'])
+    #model = clone_model(model)
+    #sgd = SGD(lr=0.001, momentum=0.001, nesterov=True)
+    opt = RMSprop(learning_rate=0.001, centered=True)
 
-#sgd = SGD(lr=0.001, momentum=0.001, nesterov=True)
+    model.compile(loss=tfa.losses.TripletSemiHardLoss(),
+                  optimizer=opt,  #Adam(learning_rate=1e-5),
+    	      metrics=[triplet_accuracy]) # 'accuracy' or triplet_accuracy
 
-opt = RMSprop(learning_rate=0.001, centered=True)
+    datagen = ImageDataGenerator(rescale=1. / 255)
 
+    train_generator = datagen.flow_from_directory(train_dir,
+                                                  target_size=(img_width, img_height),
+                                                  batch_size=args['batch_size'],
+                                                  class_mode='sparse')
 
-model.compile(loss=tfa.losses.TripletSemiHardLoss(),
-              optimizer=opt,  #Adam(learning_rate=1e-5),
-	      metrics=[triplet_accuracy]) # 'accuracy' or triplet_accuracy
+    val_generator = datagen.flow_from_directory(val_dir,
+                                                  target_size=(img_width, img_height),
+                                                  batch_size=args['batch_size'],
+                                                  class_mode='sparse')
 
-datagen = ImageDataGenerator(rescale=1. / 255)
+    my_callbacks = [
+                    tf.keras.callbacks.ModelCheckpoint(filepath=save_model_path + 'model_scratch_new.h5',
+                                                       monitor='val_loss',
+                                                       mode='min',
+                                                       save_best_only=True),
+    ]
 
-train_generator = datagen.flow_from_directory(train_dir,
-                                              target_size=(img_width, img_height),
-                                              batch_size=batch_size,
-                                              class_mode='sparse')
+    import datetime
+    log_dir = "logs/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
 
-val_generator = datagen.flow_from_directory(val_dir,
-                                              target_size=(img_width, img_height),
-                                              batch_size=batch_size,
-                                              class_mode='sparse')
+    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=25, verbose=1)
 
-my_callbacks = [
-                tf.keras.callbacks.ModelCheckpoint(filepath=save_model_path + 'model_scratch_new.h5',
-                                                   monitor='val_loss',
-                                                   mode='min',
-                                                   save_best_only=True),
-]
+    model.fit_generator(train_generator,
+              steps_per_epoch=nb_train_samples // args['batch_size'],
+              epochs=args['epochs'],
+              #callbacks=my_callbacks,
+    	  callbacks=[tensorboard_callback, reduce_lr],
+              validation_data=val_generator,
+              validation_steps=nb_val_samples // args['batch_size'])
 
-import datetime
-log_dir = "logs/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
+    model.save(save_model_path+'model_new.h5')
 
-reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=25, verbose=1)
-
-#lr_callback = 
-
-model.fit_generator(train_generator,
-          steps_per_epoch=nb_train_samples // batch_size,
-          epochs=epochs,
-          #callbacks=my_callbacks,
-	  callbacks=[tensorboard_callback, reduce_lr],
-          validation_data=val_generator,
-          validation_steps=nb_val_samples // batch_size)
-
-model.save(save_model_path+'model_new.h5')
+if __name__ == '__main__':
+    main()

@@ -4,6 +4,7 @@ import random
 import imageio
 import imgaug as ia
 from imgaug import augmenters as iaa
+import argparse
 
 '''Добавление к изоюражению различных эффектов и сохранение их.
 ДЛЯ ЧАСТНОГО СЛУЧАЯ!'''
@@ -18,12 +19,17 @@ Mirroring - ok
 MotionBlur - ok
 '''
 
-#dir = "/home/pavel/Desktop/University/Diplom/dataset3.11_2/train"
-dir = "/home/pavel/Desktop/University/Diplom/cars196/train" 			 #  root_dir набора данных
-#test_dir = "/home/pavel/Desktop/University/Diplom/dataset/Chery Amulet"
-#save_dir = "-"
 
-#test = '/home/pavel/Desktop/University/Diplom/car_rectangle/affin_test/Chery Amulet'
+dir = "/home/pavel/Desktop/University/Diplom/cars196/train" 			 #  root_dir набора данных
+
+def get_arguments():
+    ap = argparse.ArgumentParser()
+    ap.add_argument(
+        "--root_dir",
+        required=True,
+        help="Path to data."
+    )
+    return vars(ap.parse_args())
 
 def mult_save(images):
     for image in images:

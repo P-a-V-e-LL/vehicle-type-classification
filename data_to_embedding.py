@@ -9,8 +9,29 @@ from matplotlib import pyplot as plt
 from numpy import expand_dims
 import pickle
 
-model_path = "./models/model_20211203_rmsprop.h5"
-root_dir_val = "../dataset3.11_2/val"
+def get_arguments():
+    ap = argparse.ArgumentParser()
+    ap.add_argument(
+        "--model_path",
+        required=True,
+        help="Path to .h5 keras model."
+    )
+    ap.add_argument(
+        "--root_dir",
+        required=True,
+        help="Path to data dir."
+    )
+    ap.add_argument(
+        "--all",
+        default=False,
+        help="All images flag."
+    )
+    ap.add_argument(
+        "--n",
+        default=1,
+        help="Class images amount."
+    )
+    return vars(ap.parse_args())
 
 def get_v(filename, model, required_size=(160, 160)):
   image = Image.open(filename)
@@ -25,11 +46,6 @@ def get_v(filename, model, required_size=(160, 160)):
   samples = np.stack((samples.copy(),)*3, axis=-1)
   yhat = model.predict(samples)
   return yhat[0]
-
-classes = os.listdir(root_dir_val)
-classes_count = len(classes)
-model = load_model(model_path, compile=False)
-
 
 def get_min_max_val_img(dir, classes):
     '''
@@ -56,12 +72,10 @@ def class_to_embedding_list(dir, n):
     '''
     Преобразовывает класс (папку с изображениями) в список n векторов.
     dir - папка класса (val/dir);
-    n - количество изображений для извлечения векторов;
-    name - название класса.
+    n - количество изображений для извлечения векторов.
     Возвращает список векторов.
     '''
     embeddings = []
-    #embeddings = [name]
     i = 0
     for img in os.listdir(dir):
         if i != n:
@@ -73,27 +87,6 @@ def class_to_embedding_list(dir, n):
             break
     return embeddings
 
-def choise(dir, classes):
-    max, min = get_min_max_val_img(dir, classes)
-    print("Введите 1 чтобы сдлать сохранение одного изображения из класса.")
-    print()
-    print("Введите 2 чтобы сдлать сохранение n изображений из класса.")
-    print()
-    print("Введите 3 чтобы сдлать сохранение всех изображений из класса.")
-    print()
-    c = int(input("Выберите вариант: "))
-    if c == 1:
-        n = 1
-    elif c == 2:
-        print("Минимальное возможное значение - {0}, максимальное - {1}".format(min, max))
-        print()
-        n = int(input("Ввдеите n: "))
-    elif c == 3:
-        n = max
-    else:
-        print("Ошибка!")
-    return n
-
 def data_to_pickle(root_dir):
     '''
     Основная функция для исполнения.
@@ -101,14 +94,13 @@ def data_to_pickle(root_dir):
     root_dir - папка выборки данных.
     Записываются значения вида {class_name: [embeddings_list]}.
     '''
-    data_name = input("Введите название набора данных: ")
-    cl = os.listdir(root_dir)
+    cl = os.listdir(root_dir, n)
     class_embeddings = {}
-    ch = choise(root_dir, cl)
     for c in cl:
-        class_embeddings[c] = class_to_embedding_list(os.path.join(root_dir, c), ch)
+        class_embeddings[c] = class_to_embedding_list(os.path.join(root_dir, c), n)
         print("{0} сохранен!".format(c))
-    f = open("./embedding_data/" + data_name + ".pickle", "wb+")
+    #f = open("./embedding_data/" + data_name + ".pickle", "wb+")
+    f = open(args['data'], "wb+")
     pickle.dump(class_embeddings, f)
     f.close()
     print("Данные сохранены!")
@@ -119,4 +111,16 @@ def pickle_to_data(fname):
     f.close()
     return x
 
-data_to_pickle(root_dir_val)
+def main():
+    args = get_arguments()
+    classes = os.listdir(args['root_dir'])
+    classes_count = len(classes)
+    max, min = get_min_max_val_img(args['root_dir'], classes)
+    model = load_model(args['model_path'], compile=False)
+    if args['all']:
+        data_to_pickle(args['root_dir'], max)
+    else:
+        data_to_pickle(args['root_dir'], args['n'])
+
+if __name__ == '__main__':
+    main()
