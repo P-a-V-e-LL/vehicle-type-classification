@@ -20,6 +20,7 @@ from tensorflow.keras.optimizers import Adam, SGD, RMSprop
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.callbacks import ReduceLROnPlateau
 import argparse
+import os
 
 def get_arguments():
     ap = argparse.ArgumentParser()
@@ -43,7 +44,7 @@ def get_arguments():
     )
     ap.add_argument(
         "--batch_size",
-        required=True,
+        #required=True,
         default=128,
         help="Batch size."
     )
@@ -59,6 +60,7 @@ def _normalize_img(img, label):
     return (img, label)
 
 def check(path):
+    i = 0
     for folder in os.listdir(path):
         n = os.path.join(path, folder)
         i += len(os.listdir(n))
@@ -104,12 +106,12 @@ def main():
 
     datagen = ImageDataGenerator(rescale=1. / 255)
 
-    train_generator = datagen.flow_from_directory(train_dir,
+    train_generator = datagen.flow_from_directory(args['train_data'],
                                                   target_size=(img_width, img_height),
                                                   batch_size=args['batch_size'],
                                                   class_mode='sparse')
 
-    val_generator = datagen.flow_from_directory(val_dir,
+    val_generator = datagen.flow_from_directory(args['val_data'],
                                                   target_size=(img_width, img_height),
                                                   batch_size=args['batch_size'],
                                                   class_mode='sparse')
@@ -128,12 +130,12 @@ def main():
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=25, verbose=1)
 
     model.fit_generator(train_generator,
-              steps_per_epoch=nb_train_samples // args['batch_size'],
-              epochs=args['epochs'],
+              steps_per_epoch=nb_train_samples // int(args['batch_size']),
+              epochs=int(args['epochs']),
               #callbacks=my_callbacks,
     	  callbacks=[tensorboard_callback, reduce_lr],
               validation_data=val_generator,
-              validation_steps=nb_val_samples // args['batch_size'])
+              validation_steps=nb_val_samples // int(args['batch_size']))
 
     model.save(save_model_path+'model_new.h5')
 

@@ -1,0 +1,28 @@
+2022-02-21 19:33:13.564439: I tensorflow/core/platform/cpu_feature_guard.cc:151] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 AVX512F FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2022-02-21 19:33:14.191449: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1525] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 13793 MB memory:  -> device: 0, name: Tesla T4, pci bus id: 0000:5e:00.0, compute capability: 7.5
+/mnt/nvme0n1/neuroweb/projects/vehicle-type-classification-2/env/lib/python3.7/site-packages/tensorflow_addons/utils/ensure_tf_install.py:67: UserWarning: Tensorflow Addons supports using Python ops for all Tensorflow versions above or equal to 2.4.0 and strictly below 2.7.0 (nightly versions are not supported). 
+ The versions of TensorFlow you are currently using is 2.7.0 and is not supported. 
+Some things might work, some things might not.
+If you were to encounter a bug, do not file an issue.
+If you want to make sure you're using a tested and supported configuration, either change the TensorFlow version or the TensorFlow Addons's version. 
+You can find the compatibility matrix in TensorFlow Addon's readme:
+https://github.com/tensorflow/addons
+  UserWarning,
+WARNING:tensorflow:No training configuration found in the save file, so the model was *not* compiled. Compile it manually.
+model_training.py:138: UserWarning: `Model.fit_generator` is deprecated and will be removed in a future version. Please use `Model.fit`, which supports generators.
+  validation_steps=nb_val_samples // int(args['batch_size']))
+Found 42559 images belonging to 106 classes.
+Found 10471 images belonging to 26 classes.
+Traceback (most recent call last):
+  File "model_training.py", line 143, in <module>
+    main()
+  File "model_training.py", line 138, in main
+    validation_steps=nb_val_samples // int(args['batch_size']))
+  File "/mnt/nvme0n1/neuroweb/projects/vehicle-type-classification-2/env/lib/python3.7/site-packages/keras/engine/training.py", line 2030, in fit_generator
+    initial_epoch=initial_epoch)
+  File "/mnt/nvme0n1/neuroweb/projects/vehicle-type-classification-2/env/lib/python3.7/site-packages/keras/utils/traceback_utils.py", line 67, in error_handler
+    raise e.with_traceback(filtered_tb) from None
+  File "/mnt/nvme0n1/neuroweb/projects/vehicle-type-classification-2/env/lib/python3.7/site-packages/keras_preprocessing/image/iterator.py", line 68, in __len__
+    return (self.n + self.batch_size - 1) // self.batch_size  # round up
+TypeError: unsupported operand type(s) for +: 'int' and 'str'
