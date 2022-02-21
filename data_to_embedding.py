@@ -8,6 +8,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from numpy import expand_dims
 import pickle
+import argparse
 
 def get_arguments():
     ap = argparse.ArgumentParser()
@@ -23,6 +24,11 @@ def get_arguments():
     )
     ap.add_argument(
         "--all",
+        default=False,
+        help="All images flag."
+    )
+    ap.add_argument(
+        "--data",
         default=False,
         help="All images flag."
     )
@@ -53,6 +59,7 @@ def get_min_max_val_img(dir, classes):
     dir - папка выборки данных;
     classes - список классов из root_dir.
     '''
+    classes_count = len(classes)
     min = 1000000
     max = -1
     i = 0
@@ -68,7 +75,7 @@ def get_min_max_val_img(dir, classes):
         i += 1
     return max, min
 
-def class_to_embedding_list(dir, n):
+def class_to_embedding_list(dir, n, model):
     '''
     Преобразовывает класс (папку с изображениями) в список n векторов.
     dir - папка класса (val/dir);
@@ -87,20 +94,24 @@ def class_to_embedding_list(dir, n):
             break
     return embeddings
 
-def data_to_pickle(root_dir):
+def data_to_pickle(root_dir, model, name, n=0, max=False):
     '''
     Основная функция для исполнения.
     Записывает каждый класс в файл формата .pickle как список векторов.
     root_dir - папка выборки данных.
     Записываются значения вида {class_name: [embeddings_list]}.
     '''
-    cl = os.listdir(root_dir, n)
+    cl = os.listdir(root_dir)
     class_embeddings = {}
     for c in cl:
-        class_embeddings[c] = class_to_embedding_list(os.path.join(root_dir, c), n)
+        if max:
+            nn = len(os.listdir(os.path.join(root_dir, c)))
+            class_embeddings[c] = class_to_embedding_list(os.path.join(root_dir, c), nn, model)
+        else:
+            class_embeddings[c] = class_to_embedding_list(os.path.join(root_dir, c), n, model)
         print("{0} сохранен!".format(c))
     #f = open("./embedding_data/" + data_name + ".pickle", "wb+")
-    f = open(args['data'], "wb+")
+    f = open("./embedding_data/" + name + ".pickle", "wb+")
     pickle.dump(class_embeddings, f)
     f.close()
     print("Данные сохранены!")
@@ -113,14 +124,15 @@ def pickle_to_data(fname):
 
 def main():
     args = get_arguments()
+    model = load_model(args['model_path'], compile=False)
     classes = os.listdir(args['root_dir'])
     classes_count = len(classes)
     max, min = get_min_max_val_img(args['root_dir'], classes)
-    model = load_model(args['model_path'], compile=False)
     if args['all']:
-        data_to_pickle(args['root_dir'], max)
+        #data_to_pickle(args['root_dir'], max, model, args['data'])
+        data_to_pickle(args['root_dir'], model, args['data'], max=True)
     else:
-        data_to_pickle(args['root_dir'], args['n'])
+        data_to_pickle(args['root_dir'], model, args['data'], n=args['n'],)
 
 if __name__ == '__main__':
     main()
