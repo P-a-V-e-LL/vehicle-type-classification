@@ -93,3 +93,6 @@ def main():
     plt.clim(-0.5, classes_count-0.5)
     plt.savefig(args['filename'], dpi=300)
     #plt.show()
+
+if __name__ == '__main__':
+    main()
