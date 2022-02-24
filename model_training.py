@@ -117,12 +117,10 @@ def main():
                                                   batch_size=args['batch_size'],
                                                   class_mode='sparse')
 
-    my_callbacks = [
-                    tf.keras.callbacks.ModelCheckpoint(filepath=save_model_path + 'model_new_callback.h5',
+    my_callbacks = tf.keras.callbacks.ModelCheckpoint(filepath=save_model_path + 'model_new_callback.h5',
                                                        monitor='val_loss',
                                                        mode='min',
-                                                       save_best_only=True),
-    ]
+                                                       save_best_only=True)
 
     import datetime
     log_dir = "logs/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -131,12 +129,12 @@ def main():
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=25, verbose=1)
 
     model.fit_generator(train_generator,
-              steps_per_epoch=nb_train_samples // int(args['batch_size']),
+              steps_per_epoch=nb_train_samples // args['batch_size'],
               epochs=int(args['epochs']),
               #callbacks=my_callbacks,
     	      callbacks=[tensorboard_callback, reduce_lr, my_callbacks],
               validation_data=val_generator,
-              validation_steps=nb_val_samples // int(args['batch_size']))
+              validation_steps=nb_val_samples // args['batch_size'])
 
     model.save(save_model_path+'model_new.h5')
 
