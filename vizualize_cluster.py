@@ -63,6 +63,7 @@ def main():
     print("Counting embeddings...")
 
     while i < classes_count:
+      print('{0}/{1}'.format(i, classes_count))
       for auto in os.listdir(os.path.join(args['root_dir'], classes[i])):
         o = os.path.join(args['root_dir'], classes[i])
         o = os.path.join(o, auto)

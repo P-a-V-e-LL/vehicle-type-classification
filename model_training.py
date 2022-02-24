@@ -44,12 +44,13 @@ def get_arguments():
     )
     ap.add_argument(
         "--batch_size",
-        #required=True,
+        type=int,
         default=128,
         help="Batch size."
     )
     ap.add_argument(
         "--epochs",
+        type=int,
         required=True,
         help="Training epochs amount."
     )

@@ -34,6 +34,7 @@ def get_arguments():
     )
     ap.add_argument(
         "--n",
+        type=int,
         default=1,
         help="Class images amount."
     )

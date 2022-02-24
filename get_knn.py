@@ -36,11 +36,13 @@ def get_arguments():
     )
     ap.add_argument(
         "--min_dist",
+        type=int,
         default=0.6,
         help="Min distanse between classes."
     )
     ap.add_argument(
         "--knn_count",
+        type=int,
         default=10,
         help="Nearest neighbours count."
     )
