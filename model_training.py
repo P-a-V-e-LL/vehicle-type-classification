@@ -118,7 +118,7 @@ def main():
                                                   class_mode='sparse')
 
     my_callbacks = [
-                    tf.keras.callbacks.ModelCheckpoint(filepath=save_model_path + 'model_scratch_new.h5',
+                    tf.keras.callbacks.ModelCheckpoint(filepath=save_model_path + 'model_new_callback.h5',
                                                        monitor='val_loss',
                                                        mode='min',
                                                        save_best_only=True),
@@ -134,7 +134,7 @@ def main():
               steps_per_epoch=nb_train_samples // int(args['batch_size']),
               epochs=int(args['epochs']),
               #callbacks=my_callbacks,
-    	  callbacks=[tensorboard_callback, reduce_lr],
+    	      callbacks=[tensorboard_callback, reduce_lr, my_callbacks],
               validation_data=val_generator,
               validation_steps=nb_val_samples // int(args['batch_size']))
 
