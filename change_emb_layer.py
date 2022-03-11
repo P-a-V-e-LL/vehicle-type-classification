@@ -1,10 +1,10 @@
 import os
 from pathlib import Path
 import gdown
-from functools import partial
+#from functools import partial
 import argparse
 
-from deepface.commons import functions
+#from deepface.commons import functions
 
 import tensorflow as tf
 tf_version = int(tf.__version__.split(".")[0])
