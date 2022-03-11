@@ -52,12 +52,17 @@ def get_arguments():
         required=True,
         help="Model name."
     )
+    ap.add_argument(
+        "--l2",
+        default=False,
+        help="Adding l2 layer flag."
+    )
     return vars(ap.parse_args())
 
 def scaling(x, scale):
 	return x * scale
 
-def InceptionResNetV2(dimension = 128):
+def InceptionResNetV2(dimension = 128, l2=False):
 
 	inputs = Input(shape=(160, 160, 3))
 	x = Conv2D(32, 3, strides=2, padding='valid', use_bias=False, name= 'Conv2d_1a_3x3') (inputs)
@@ -561,6 +566,8 @@ def InceptionResNetV2(dimension = 128):
 	# Bottleneck
 	x = Dense(dimension, use_bias=False, name='Bottleneck')(x)
 	x = BatchNormalization(momentum=0.995, epsilon=0.001, scale=False, name='Bottleneck_BatchNorm')(x)
+	if l2:
+		x = Lambda(lambda i: tf.math.l2_normalize(i, axis=1))(x)
 
 	# Create model
 	model = Model(inputs, x, name='inception_resnet_v1')
@@ -568,8 +575,8 @@ def InceptionResNetV2(dimension = 128):
 	return model
 
 
-def loadModel(url = 'https://github.com/serengil/deepface_models/releases/download/v1.0/facenet_weights.h5', dim=128):
-	model = InceptionResNetV2(dim)
+def loadModel(url = 'https://github.com/serengil/deepface_models/releases/download/v1.0/facenet_weights.h5', dim=128, l2=False):
+	model = InceptionResNetV2(dim, l2)
 
 	#-----------------------------------
 
@@ -591,7 +598,7 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
 
 def main():
     args = get_arguments()
-    model = loadModel(dim=args['dim'])
+    model = loadModel(dim=args['dim'], l2=args['l2'])
     model.summary()
     model.save('./models/'+args['model_name']+'.h5')
 
