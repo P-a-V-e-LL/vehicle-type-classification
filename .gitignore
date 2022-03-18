@@ -9,3 +9,6 @@ models/model_20211203_rmsprop.h5
 embedding_data/
 .vscode/
 out.log
+__pycache__/
+yolox/*.jpg
+!yolox/bus.jpg

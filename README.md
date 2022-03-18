@@ -7,7 +7,7 @@
 # Installation
 1.Клонировать репозиторий:
 ```
-git clone git@gitlab.inventos.ru:neurowebs/vehicle-type-classification-2.git
+git clone git@gitlab.inventos.ru:neurowebs/vehicle-type-classification.git
 ```
 2.Создать новое вируальное окружение:
 ```
@@ -33,6 +33,21 @@ pip install -r requirements.txt
 
 Обязательные аргументы:
 - --video_path - путь к папке с видео для распознавания.
+
+# yolox_demo.py
+
+Программа для демонстрации работы с классом `InferenceYoloxOnnx`, который отвечает за выполнение
+YOLOX с помощью onnxruntime. Есть возможность сохранить визуализированные прямоугольники для входного изображения.
+
+Аргументы:
+* --model: Путь до модели в формате onnx. Обязательный.
+* --image_path: Путь до тестируемого изображения. Обязательный.
+* --save_image: Сохранять ли изображение с найденными прямоугольниками. По умолчанию: `True`
+
+Пример запуска:
+```python
+python3 yolox_demo.py --model car_detect/five_car_class_yolox_s_190122.onnx --image_path yolox/bus.jpg
+```
 
 # model_training.py
 
