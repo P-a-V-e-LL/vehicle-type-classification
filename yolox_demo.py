@@ -39,6 +39,9 @@ if __name__ == '__main__':
     dets = yolox.run()
     if dets is not None:
         final_boxes, final_scores, final_cls_inds = dets[:, :4], dets[:, 4], dets[:, 5]
+        print(final_boxes)
+        print(final_scores)
+        print(final_cls_inds)
         img = vis(
             img,
             final_boxes,

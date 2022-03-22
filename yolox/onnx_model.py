@@ -88,7 +88,7 @@ class InferenceYoloxOnnx:
         self._r_y = 1.0
         self._ort_inputs = {}
 
-    
+
     def preprocess_image(
         self,
         image: np.ndarray,
@@ -147,6 +147,9 @@ class InferenceYoloxOnnx:
             self.nms_iou_thr,
             self.nms_conf_thr
         )
+        # если на картинке небыло авто, то вернуть None
+        if dets is None:
+            return None
         dets[:, 0] /= self._r_x
         dets[:, 1] /= self._r_y
         dets[:, 2] /= self._r_x
