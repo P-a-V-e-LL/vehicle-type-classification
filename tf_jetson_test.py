@@ -1,4 +1,3 @@
-import tensorflow as tf
 import os
 import sys
 from PIL import Image
@@ -8,6 +7,7 @@ import numpy as np
 from numpy import expand_dims
 import argparse
 import time
+import tflite_runtime.interpreter as tflite
 
 
 def get_arguments():
@@ -44,7 +44,7 @@ def main():
     args = get_arguments()
     time_list = []
     time_sum = 0
-    interpreter = tf.lite.Interpreter(model_path=args['model_path'])
+    interpreter = tflite.Interpreter(model_path=args['model_path'])
     interpreter.allocate_tensors()
 
     input_details = interpreter.get_input_details()
