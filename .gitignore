@@ -12,3 +12,4 @@ out.log
 __pycache__/
 yolox/*.jpg
 !yolox/bus.jpg
+env-2.5/
