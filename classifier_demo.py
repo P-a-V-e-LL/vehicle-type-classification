@@ -1,7 +1,7 @@
 import os
 import argparse
 import tensorflow as tf
-from PIL import Image
+import cv2
 import numpy as np
 from classifier import Classifier
 
@@ -27,7 +27,7 @@ def get_arguments():
     return vars(ap.parse_args())
 
 def image_to_np(filename):
-    image = Image.open(filename)
+    image = cv2.imread(filename, cv2.IMREAD_GRAYSCALE)
     image = np.asarray(image)
     return image
 

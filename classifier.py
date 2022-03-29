@@ -2,9 +2,11 @@ import os
 import math
 import time
 import numpy as np
-from PIL import Image
+
+#from PIL import Image
+import cv2
+
 import pickle
-#import argparse
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 
@@ -31,21 +33,11 @@ class Classifier:
 
     def get_embedding(self, image):
         '''Получает вектор embedding из изображения.'''
-        #image = Image.open(filename)
-        #image = asarray(image) # изображение поступает в классификатор в формате numpy массива
-        image = Image.fromarray(image)
-        image = image.resize(self.required_size)
-        car_array = np.asarray(image)
-        car_array = car_array.astype('float32')
-        #print(np.unique(car_array))
-        #print("-"*100)
-        #mean, std = car_array.mean(), car_array.std()
-        #car_array = (car_array - mean) / std
-        for i in range(len(car_array)):
-            car_array[i] /= 255
-        #print(np.unique(car_array))
-        #print("-"*100)
-        samples = np.expand_dims(car_array, axis=0)
+        image = cv2.resize(image, self.required_size)
+        image = np.asarray(image)
+        image = image.astype(np.float32)
+        image /= 255
+        samples = np.expand_dims(image, axis=0)
         samples = np.stack((samples.copy(),)*3, axis=-1)
         yhat = self.model.predict(samples)
         return yhat[0]
