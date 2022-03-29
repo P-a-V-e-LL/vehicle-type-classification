@@ -37,8 +37,14 @@ class Classifier:
         image = image.resize(self.required_size)
         car_array = np.asarray(image)
         car_array = car_array.astype('float32')
-        mean, std = car_array.mean(), car_array.std()
-        car_array = (car_array - mean) / std
+        #print(np.unique(car_array))
+        #print("-"*100)
+        #mean, std = car_array.mean(), car_array.std()
+        #car_array = (car_array - mean) / std
+        for i in range(len(car_array)):
+            car_array[i] /= 255
+        #print(np.unique(car_array))
+        #print("-"*100)
         samples = np.expand_dims(car_array, axis=0)
         samples = np.stack((samples.copy(),)*3, axis=-1)
         yhat = self.model.predict(samples)
