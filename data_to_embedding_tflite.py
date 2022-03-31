@@ -26,9 +26,9 @@ def get_arguments():
     return vars(ap.parse_args())
 
 def get_v(image):
-    image = cv2.imread(filename, cv2.IMREAD_GRAYSCALE)
+    image = cv2.imread(image, cv2.IMREAD_GRAYSCALE)
     image = np.asarray(image)
-    image = cv2.resize(image, required_size=(160,160))
+    image = cv2.resize(image, (160,160))
     image = np.asarray(image)
     image = image.astype(np.float32)
     image /= 255
@@ -55,8 +55,9 @@ def main():
             interpreter.invoke()
             output_data = interpreter.get_tensor(output_details[0]['index'])
             embeddings[cl] = output_data
+        print("{0} saved.".format(cl))
 
-    f = open("./embedding_data/" + name + ".pickle", "wb+")
+    f = open("./embedding_data/" + args['filename'] + ".pickle", "wb+")
     pickle.dump(embeddings, f)
     f.close()
     print("Данные сохранены!")
