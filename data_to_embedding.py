@@ -1,5 +1,6 @@
 import os
 import sys
+import tensorflow as tf
 from tensorflow.keras.models import load_model
 from PIL import Image
 from numpy import asarray
@@ -28,9 +29,9 @@ def get_arguments():
         help="All images flag."
     )
     ap.add_argument(
-        "--data",
+        "--filename",
         default=False,
-        help="All images flag."
+        help="New pickle data filename"
     )
     ap.add_argument(
         "--n",
@@ -131,9 +132,9 @@ def main():
     max, min = get_min_max_val_img(args['root_dir'], classes)
     if args['all']:
         #data_to_pickle(args['root_dir'], max, model, args['data'])
-        data_to_pickle(args['root_dir'], model, args['data'], max=True)
+        data_to_pickle(args['root_dir'], model, args['filename'], max=True)
     else:
-        data_to_pickle(args['root_dir'], model, args['data'], n=args['n'],)
+        data_to_pickle(args['root_dir'], model, args['filename'], n=args['n'],)
 
 if __name__ == '__main__':
     main()
