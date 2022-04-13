@@ -46,18 +46,16 @@ class Classifier:
     def add_distance(self, name, dist, nearest_list, n):
         '''Добавляет дистанцию в список ближайших если значение меньше максимального в списке.'''
         if len(nearest_list) < n:
-            nearest_list.append({"class_name": name, "distance": dist})
+            nearest_list.append({"class_name": name, "distance": float(dist)})
             return nearest_list
         if dist < nearest_list[-1]["distance"]:
-            nearest_list.append({"class_name": name, "distance": dist})
+            nearest_list.append({"class_name": name, "distance": float(dist)})
             nearest_list = sorted(nearest_list, key=lambda a: a['distance'],  reverse=False)
             if len(nearest_list) > n:
                 nearest_list.pop(-1)
         return nearest_list
 
-    def get_predict(self, image):
-        knn_list = []
-        start_time = time.time()
+    def get_embedding_vector(self, image):
         interpreter = tflite.Interpreter(model_path=self.model_path)
         interpreter.allocate_tensors()
 
@@ -68,6 +66,14 @@ class Classifier:
         interpreter.set_tensor(input_details[0]['index'], input_data)
         interpreter.invoke()
         output_data = interpreter.get_tensor(output_details[0]['index'])
+
+        return output_data
+
+    def get_predict(self, image):
+        knn_list = []
+        start_time = time.time()
+
+        output_data = self.get_embedding_vector(image)
 
         for car in self.pickle_data.keys():
             for embedding in self.pickle_data[car]:

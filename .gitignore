@@ -12,3 +12,5 @@ out.log
 __pycache__/
 env-2.5/
 yolox/
+env3.6/
+reports/

@@ -48,13 +48,14 @@ def main():
     output_details = interpreter.get_output_details()
 
     for cl in os.listdir(args['root_dir']):
+        embeddings[cl] = []
         path = os.path.join(args['root_dir'], cl)
         for car in os.listdir(path):
             input_data = np.array(get_v(os.path.join(path, car)), dtype=np.float32)
             interpreter.set_tensor(input_details[0]['index'], input_data)
             interpreter.invoke()
             output_data = interpreter.get_tensor(output_details[0]['index'])
-            embeddings[cl] = output_data
+            embeddings[cl].append(output_data)
         print("{0} saved.".format(cl))
 
     f = open("./embedding_data/" + args['filename'] + ".pickle", "wb+")

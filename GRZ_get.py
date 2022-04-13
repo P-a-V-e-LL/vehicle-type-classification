@@ -3,9 +3,17 @@ import json
 import time
 import os
 import random
+import argparse
+import json
 
-
-# нужен python3.9 и выше
+def get_arguments():
+    ap = argparse.ArgumentParser()
+    ap.add_argument(
+        "--grz",
+        required=True,
+        help="GRZ."
+    )
+    return vars(ap.parse_args())
 
 # токен авторизации (изменить при получении нового)
 auth = "ZV9uZXN0ZXJvdl9pbnRlZ3JhdGlvbkBpbnZlbnRvczoxNDgzNjM0NzIzOjk5OTk5OTk5OTpUbWJFK2R2NFpOQUgrVmJDenRQdy9BPT0"
@@ -13,6 +21,15 @@ auth = "ZV9uZXN0ZXJvdl9pbnRlZ3JhdGlvbkBpbnZlbnRvczoxNDgzNjM0NzIzOjk5OTk5OTk5OTpU
 report_url = "https://b2b-api.spectrumdata.ru/b2b/api/v1/user/reports/report_autocomplete_plus%40inventos/_make" # было report_autocomplete_test
 
 # английская раскладка номера тоже работает (проверить).
+
+def prep_grz(grz):
+    return grz.upper()
+
+def save_json_report(result, filename):
+    if not os.path.isdir("./reports/"):
+        os.mkdir("./reports/")
+    with open("./reports/"+filename+".json", "w") as f:
+        json.dump(result, f)
 
 def make_url(url):
     '''
@@ -22,7 +39,8 @@ def make_url(url):
         url - uid отчета.
     return - возвращает GET ссылку.
     '''
-    x = url.removesuffix("@inventos")
+    #x = url.removesuffix("@inventos")
+    x = url.replace("@inventos", "")
     x = x.replace("=", "%3D")
     x = 'https://b2b-api.spectrumdata.ru/b2b/api/v1/user/reports/' + x + "%40inventos?_detailed=true&_content=true"
     return x
@@ -42,10 +60,7 @@ def get_model(url, authorization, accept="application/json"):
          x = json.loads(requests.get(url, headers={"Accept": accept,
                                                    "Authorization": authorization}).text)
          if x["data"][0].get("status") == None or x["data"][0].get("status") == "FINISH":
-             #print("-"*20)
              print("Отчет готов.")
-             #print("Get_model----", x)
-             #print("-"*20)
              flag = True
          else:
              print("Отчет не готов {0}, ждем 5 секунд...".format(x["data"][0].get("status")))
@@ -54,14 +69,39 @@ def get_model(url, authorization, accept="application/json"):
     # проблема: может отсутствовать поле model, а информация о модели
     # содержаться в x["data"][0]["content"]["tech_data"]["brand"]["name"]["original"]
     # однако это мог быть частынй случай с Камазом и для остальных авто он неприменим.
-    print("Номер автомобиля: {0}".format(x["data"][0]["vehicle_id"]))
-    print("Модель автомобиля: {0} {1} {2}".format(x["data"][0]["content"]["tech_data"]["brand"]["name"]["normalized"],
-                                                  x["data"][0]["content"]["tech_data"].get("model")["name"]["normalized"] if x["data"][0]["content"]["tech_data"].get("model") != None else "No model",
-                                                  x["data"][0]["content"]["tech_data"]["year"]))
-    print(x["data"][0]["content"]["tech_data"]["body"]["color"]["name"])
+    print("Номер ТС: {0}".format(x["data"][0]["vehicle_id"]))
+    result = {}
+    try:
+        result["name"] = x["data"][0]["content"]["tech_data"]["brand"]["name"]["normalized"]
+        print("Марка ТС: ", result["name"])
+    except Exception as e:
+        result["name"] = None
+        print("Марка ТС не определена.")
 
-    return x["data"][0]["content"]["tech_data"]["brand"]["name"]["normalized"] + " " + (x["data"][0]["content"]["tech_data"].get("model")["name"]["normalized"] if x["data"][0]["content"]["tech_data"].get("model") != None else "No model") + " " + str(x["data"][0]["content"]["tech_data"]["year"])
+    try:
+        result["model"] = x["data"][0]["content"]["tech_data"].get("model")["name"]["normalized"] if x["data"][0]["content"]["tech_data"].get("model") != None else "No model"
+        print("Модель ТС: ", result["model"])
+    except Exception as e:
+        result["model"] = None
+        print("Модель ТС не определена.")
 
+    try:
+        result["year"] = x["data"][0]["content"]["tech_data"]["year"]
+        print("Год ТС: ", result["year"])
+    except Exception as e:
+        result["year"] = None
+        print("Год ТС не определен.")
+
+    try:
+        result["category_code"] = x["data"][0]["content"]["additional_info"]["vehicle"]["category"]["code"]
+        print("Код атегории ТС: ", result["category_code"])
+    except Exception as e:
+        result["category_code"] = None
+        print("Категория ТС не определена.")
+
+    result["full_report"] = x
+
+    return result
 
 
 def make_report(start_url, authorization, grz, accept="application/json"):
@@ -101,10 +141,11 @@ def get_all_reports(url, auth,accept="application/json"):
 
 
 def final_step():
-    f = open('data.txt', 'a')
-    i = 1
-    grz_list = {}
-    dir = "/home/pavel/Desktop/University/Diplom//car_rectangle/frames1" # папка с изображениями (изменить)
+    args = get_arguments()
+    #f = open('data.txt', 'a')
+    #i = 1
+    #grz_list = {}
+    #dir = "/home/pavel/Desktop/University/Diplom//car_rectangle/frames1" # папка с изображениями (изменить)
     for filename in os.listdir(dir):
         start_filename = filename
         filename = filename.replace("(", "").replace(".jpg", "")
@@ -129,8 +170,18 @@ def final_step():
         i += 1
     f.close()
 
-final_step()
+
+def main():
+    args = get_arguments()
+    grz = prep_grz(args['grz'])
+    tar = get_model(make_url(make_report(report_url, auth, grz)), auth)
+    save_json_report(tar, grz)
+    print("Complete.")
 
 # curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json'
 # --header 'Authorization: ZV9uZXN0ZXJvdl9pbnRlZ3JhdGlvbkBpbnZlbnRvczoxNjI5NzE4NTAwOjk5OTk5OTk5OTozQ2x2cTNJUFY3akNCKzAzZHRHS0N3PT0' -d
 # '{"queryType": "GRZ","query": "А111АА77"}' 'https://b2b-api.spectrumdata.ru/b2b/api/v1/user/reports/report_autocomplete_plus%40inventos/_make'
+
+
+if __name__ == '__main__':
+    main()
