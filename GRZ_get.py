@@ -5,6 +5,8 @@ import os
 import random
 import argparse
 import json
+from uuid import uuid4
+from datetime import datetime
 
 def get_arguments():
     ap = argparse.ArgumentParser()
@@ -123,7 +125,7 @@ def make_report(start_url, authorization, grz, accept="application/json"):
     return x["data"][0]["uid"]
 
 
-def get_all_reports(url, auth,accept="application/json"):
+def get_all_reports(url, auth, existing_data, accept="application/json"):
     '''
     Выводит uid всех отчетов.
     Аргументы:
@@ -133,8 +135,15 @@ def get_all_reports(url, auth,accept="application/json"):
     '''
     x = json.loads(requests.get(url, headers={"Accept": accept,
                                       "Authorization": auth}).text)
+
     for i in x["data"]:
-        print(i["uid"])
+        if i["query"]["body"] not in existing_data:
+            print(i["uid"])
+            tar = get_model(make_url(i["uid"]), auth)
+            save_json_report(tar, tar["full_report"]["data"][0]["vehicle_id"])
+            print('saved')
+        else:
+            print("skip")
 
 # делаем запрос и извлекаем инофрмацию из отчета
 #get_model(make_url(make_report(report_url, auth, 'E020BX154')), auth)
@@ -150,13 +159,13 @@ def final_step():
         start_filename = filename
         filename = filename.replace("(", "").replace(".jpg", "")
         if filename in grz_list.keys():
-            tar = grz_list[filename] + '_' + str(random.randint(1, 100000000))
+            tar = grz_list[filename] + '_' + str(random.randint(1, 100000000)) # заменить
         else:
             try:
                 tar = get_model(make_url(make_report(report_url, auth, filename)), auth)
                 grz_list[filename] = tar
                 f.write(filename +' : ' + tar + '\n')
-                tar = tar + '_' + str(random.randint(1, 100000000))
+                tar = tar + '_' + str(random.randint(1, 100000000)) # заменить
             except Exception as err:
                 print("Fail!" * 5)
                 print(err)
@@ -184,4 +193,9 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    #main()
+    existing_data = os.listdir("./reports/")
+    reports = []
+    for report in existing_data:
+        reports.append(report.replace('.json', ''))
+    get_all_reports("https://b2b-api.spectrumdata.ru/b2b/api/v1/user/reports?_content=true&_query=_all&_size=100&_offset=0&_page=1&_calc_total=false&_detailed=false", auth, reports)

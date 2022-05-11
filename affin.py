@@ -20,7 +20,7 @@ MotionBlur - ok
 '''
 
 
-dir = "/home/pavel/Desktop/University/Diplom/cars196/train" 			 #  root_dir набора данных
+dir = "/home/pavel/Desktop/University/Diplom/dataset3.11_cut/train/" 			 #  root_dir набора данных
 
 def get_arguments():
     ap = argparse.ArgumentParser()
@@ -113,9 +113,12 @@ def augment(img):
 for folder in os.listdir(dir):
     print(folder)
     car_class = os.path.join(dir, folder)
+    car_class = os.path.join(car_class, 'back')
     save_dir = car_class
     base = os.listdir(car_class)
-    while (len(os.listdir(car_class)) < 210):  # здесь указывается общее число изображений в каждом классе, по умолчанию 210
+    if len(os.listdir(car_class)) == 0:
+        break
+    while (len(os.listdir(car_class)) < 300):  # здесь указывается общее число изображений в каждом классе, по умолчанию 210
         for image in base:
             car_image = imageio.imread(os.path.join(car_class, image))
             new = save_dir + "/" + "car_"+ str(random.randint(1, 100000)) +".jpg"

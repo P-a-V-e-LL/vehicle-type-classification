@@ -32,6 +32,11 @@ def get_arguments():
         default=False,
         help="Test data flag (if exists)"
     )
+    ap.add_argument(
+        "--all_clear_data",
+        default=False,
+        help="Clear data flag (if exists)"
+    )
     return vars(ap.parse_args())
 
 def write_csv(filename, samples):
@@ -43,20 +48,36 @@ def write_csv(filename, samples):
     '''
     f = open("./data/" + filename + ".csv", "w+", encoding="UTF8")
     writer = csv.writer(f)
-    writer.writerow(["image_name", "class_name", "height", "width", "sample", "image_path"])
+    writer.writerow(["image_name", "class_name", "height", "width", "sample", "image_path", "view"]) # view
 
     for sample in samples.keys():
         classes = os.listdir(samples[sample])
         classes_count = len(classes)
         for cl in classes:
             cl_path = os.path.join(samples[sample], cl)
-            cars = os.listdir(cl_path)
+            #cars = os.listdir(cl_path)
+            front_cl_path = os.path.join(cl_path, "front")
+            cars = os.listdir(front_cl_path)
+            print(cars)
             cars_count = len(cars)
             i = 0
             for car in cars:
-                car_path = os.path.join(cl_path, car)
+                car_path = os.path.join(front_cl_path, car)
                 width, height = imagesize.get(car_path)
-                writer.writerow([car, cl, height, width, sample, car_path])
+                writer.writerow([car, cl, height, width, sample, car_path, "front"])
+                i+=1
+                sys.stdout.write('\r' + ' '*50 + '\r')
+                sys.stdout.write("{} - {}/{}".format(cl, i, cars_count))
+                sys.stdout.flush()
+            #cars = os.listdir(cl_path)
+            back_cl_path = os.path.join(cl_path, "back")
+            cars = os.listdir(back_cl_path)
+            cars_count = len(cars)
+            i = 0
+            for car in cars:
+                car_path = os.path.join(back_cl_path, car)
+                width, height = imagesize.get(car_path)
+                writer.writerow([car, cl, height, width, sample, car_path, "back"])
                 i+=1
                 sys.stdout.write('\r' + ' '*50 + '\r')
                 sys.stdout.write("{} - {}/{}".format(cl, i, cars_count))
@@ -73,6 +94,8 @@ def main():
         samples["val"] = os.path.join(args["data_path"], "val/")
     if args["test_data"]:
         samples["test"] = os.path.join(args["data_path"], "test/")
+    if args["all_clear_data"]:
+        samples["clear"] = os.path.join(args["data_path"], "clear/")
 
     write_csv(args['filename'], samples)
 
