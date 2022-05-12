@@ -117,7 +117,7 @@ for folder in os.listdir(dir):
     save_dir = car_class
     base = os.listdir(car_class)
     if len(os.listdir(car_class)) == 0:
-        break
+        continue
     while (len(os.listdir(car_class)) < 300):  # здесь указывается общее число изображений в каждом классе, по умолчанию 210
         for image in base:
             car_image = imageio.imread(os.path.join(car_class, image))
