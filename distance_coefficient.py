@@ -9,6 +9,9 @@ from classifier import Classifier
 import matplotlib
 import matplotlib.pyplot as plt
 
+'''Описание коэффицента близости таким способом более не используется ввиду
+неинформативности.'''
+
 def get_arguments():
     ap = argparse.ArgumentParser()
     ap.add_argument(

@@ -1,5 +1,4 @@
 import matplotlib
-#import tk
 import os
 import sys
 from tensorflow.keras.models import load_model
@@ -11,8 +10,6 @@ from numpy import expand_dims
 from MulticoreTSNE import MulticoreTSNE as TSNE
 from matplotlib import pyplot as plt
 import argparse
-
-#matplotlib.use("TkAgg")
 
 def get_arguments():
     ap = argparse.ArgumentParser()

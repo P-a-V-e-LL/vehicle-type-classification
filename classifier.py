@@ -81,4 +81,4 @@ class Classifier:
                 if distance < self.min_distance:
                     knn_list = self.add_distance(car, distance, knn_list, 11)
         recognize_time = time.time() - start_time
-        return {'model':knn_list[0]["class_name"], 'recognize_time': recognize_time, 'debug_info': knn_list[1:]}
+        return {'model':knn_list[0]["class_name"], 'recognize_time': recognize_time, 'debug_info': knn_list[1:] if len(knn_list) != 1 else None}

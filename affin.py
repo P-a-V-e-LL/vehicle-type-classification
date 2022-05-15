@@ -19,15 +19,18 @@ Mirroring - ok
 MotionBlur - ok
 '''
 
-
-dir = "/home/pavel/Desktop/University/Diplom/dataset3.11_cut/train/" 			 #  root_dir набора данных
-
 def get_arguments():
     ap = argparse.ArgumentParser()
     ap.add_argument(
         "--root_dir",
         required=True,
         help="Path to data."
+    )
+    ap.add_argument(
+        "--img_count",
+        type=int,
+        default=300,
+        help="Image count to each class in root_dir."
     )
     return vars(ap.parse_args())
 
@@ -110,18 +113,23 @@ def augment(img):
 #        car_image = augment(car_image)
 #        imageio.imwrite(new, car_image)
 
-for folder in os.listdir(dir):
-    print(folder)
-    car_class = os.path.join(dir, folder)
-    car_class = os.path.join(car_class, 'back')
-    save_dir = car_class
-    base = os.listdir(car_class)
-    if len(os.listdir(car_class)) == 0:
-        continue
-    while (len(os.listdir(car_class)) < 300):  # здесь указывается общее число изображений в каждом классе, по умолчанию 210
-        for image in base:
-            car_image = imageio.imread(os.path.join(car_class, image))
-            new = save_dir + "/" + "car_"+ str(random.randint(1, 100000)) +".jpg"
-            print("Saving", new)
-            car_image = augment(car_image)
-            imageio.imwrite(new, car_image)
+def main():
+    args = get_arguments()
+    for folder in os.listdir(args['root_dir']):
+        print(folder)
+        car_class = os.path.join(args['root_dir'], folder)
+        #car_class = os.path.join(car_class, 'back')
+        save_dir = car_class
+        base = os.listdir(car_class)
+        if len(os.listdir(car_class)) == 0:
+            continue
+        while (len(os.listdir(car_class)) < args['img_count']):  # здесь указывается общее число изображений в каждом классе, по умолчанию 210
+            for image in base:
+                car_image = imageio.imread(os.path.join(car_class, image))
+                new = save_dir + "/" + "car_"+ str(random.randint(1, 100000)) +".jpg"
+                print("Saving", new)
+                car_image = augment(car_image)
+                imageio.imwrite(new, car_image)
+
+if __name__ == '__main__':
+    main()

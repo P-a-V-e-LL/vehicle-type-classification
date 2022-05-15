@@ -41,23 +41,42 @@ def image_to_np(filename):
     image = np.asarray(image)
     return image
 
-if __name__ == '__main__':
+def main():
     args = get_arguments()
-    o = Classifier(args['model_path'], args['pickle_file_path'], 6)
+    o = Classifier(args['model_path'], args['pickle_file_path'], 16)
     recall_metric = 0
     recall_count = 0
     time_list = []
     time_count = 0
+    sl = 0
     for cl in os.listdir(args['test_dir_path']):
         path = os.path.join(args['test_dir_path'], cl)
         for car in os.listdir(path):
-            embedding = o.get_predict(image_to_np(os.path.join(path, car)))
+            embedding, d = o.get_predict(image_to_np(os.path.join(path, car)))
+            sl += d
+            #embedding = o.get_predict(image_to_np(os.path.join(path, car)))
             recall_count += 1
             time_count += 1
             recall_metric += recall1(embedding['model'], cl)
             time_list.append(embedding['recognize_time'])
     print("RECALL@1 ", recall_metric/recall_count*100)
     print("Среднее время распознавания изображения ", sum(time_list)/time_count)
+    print("NULL images = ", sl)
     #image = image_to_np(args['test_image_path'])
 
     #print(o.get_predict(image))
+
+def solo_img():
+    '''Для определения дистанции не к выборке, а к одному изображению.'''
+    args = get_arguments()
+    o = Classifier(args['model_path'], args['pickle_file_path'], 16)
+    emb1 = o.get_embedding_vector(image_to_np(args['test_image_path']))
+    emb2 = o.get_embedding_vector(image_to_np(args['test_image_path']))
+    print(o.get_distance(emb1, emb2))
+    #embedding, d = o.get_predict(image_to_np(args['test_image_path']))
+    #print(embedding)
+    #print(embedding['model'], d)
+
+if __name__ == '__main__':
+    main()
+    #solo_img()
