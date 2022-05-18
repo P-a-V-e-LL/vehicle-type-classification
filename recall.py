@@ -2,6 +2,7 @@ from sklearn.neighbors import NearestNeighbors
 import numpy as np
 import pickle
 import argparse
+import datetime
 
 '''Отсутствует обработка new_individual, добавить после вычисления коэффицента близости'''
 
@@ -23,6 +24,11 @@ def get_arguments():
         #required=True,
         default = False,
         help="Set True if embeddings were obtained using tflite model."
+    )
+    ap.add_argument(
+        "--filename",
+        required=True,
+        help="Metric's mistaces filename."
     )
     return vars(ap.parse_args())
 
@@ -59,14 +65,16 @@ def pickle_to_embeddings(data):
     '''
     data_embeddings = []
     data_ids = []
+    data_path = []
     for cl in list(data.keys()):
         for embedding in data[cl]:
             #print(len(data[cl]))
             data_embeddings.append(embedding['embedding'])
             data_ids.append(cl)
-    return data_embeddings, data_ids
+            data_path.append(embedding['path'])
+    return data_embeddings, data_ids, data_path
 
-def decode(data, decoder, ignore=False):
+def decode(data, decoder, target_paths, ignore=False):
     data = list(data)
     for i in range(len(data)):
         if ignore:
@@ -74,21 +82,28 @@ def decode(data, decoder, ignore=False):
         else:
             data[i] = list(data[i])
         for num in range(len(data[i])):
-            data[i][num] = decoder[data[i][num]]
+            #data[i][num] = decoder[data[i][num]]
+            data[i][num] = {decoder[data[i][num]]: target_paths[i]}
     return data
 
-def recall(data, target_ids, n=1):
+def recall(data, target_ids, fname, n=1):
     rcl = 0
+    f = open('./recall/'+fname+'_'+str(datetime.datetime.now())+'.txt', 'w')
     #print(len(data))
     for i in range(len(data)):
         target = target_ids[i]
-        result = data[i][0]
-        #print(result, target)
-        #print(result==target)
-        #if target in data[i]:
+        #result = data[i][0]
+        result = list(data[i][0].keys())[0]
         if result == target:
             #print(result, target)
             rcl += 1
+        else:
+            f.write('Result: ' + result + ' | Target: ' + target + '\n')
+            f.write(data[i][0][list(data[i][0].keys())[0]]+'\n')
+            f.write('-'*100+'\n')
+            print('Result: ' + result + ' Target: ' + target)
+            print(data[i][0][list(data[i][0].keys())[0]])
+    f.close()
     return rcl / len(data) * 100
 
 def main():
@@ -101,8 +116,10 @@ def main():
         target_data = args['base_data']
         ignore_flag = True
 
-    train_embeddings, train_ids = pickle_to_embeddings(pickle_to_data(args['base_data']))
-    val_embeddings, val_ids = pickle_to_embeddings(pickle_to_data(target_data))
+    #train_embeddings, train_ids = pickle_to_embeddings(pickle_to_data(args['base_data']))
+    #val_embeddings, val_ids = pickle_to_embeddings(pickle_to_data(target_data))
+    train_embeddings, train_ids, train_paths = pickle_to_embeddings(pickle_to_data(args['base_data']))
+    val_embeddings, val_ids, val_paths = pickle_to_embeddings(pickle_to_data(target_data))
     encodings = class_encode(pickle_to_data(args['base_data']))
 
     if args['tflite']:
@@ -111,16 +128,17 @@ def main():
 
     if args['target_data']:
         target_ids = val_ids
-        #target_ids = train_ids
+        target_paths = val_paths
     else:
         target_ids = train_ids
+        target_paths = train_paths
 
     neigh = NearestNeighbors(n_neighbors=5,metric='l2').fit(train_embeddings)
     val_nn_distances, val_nn_idxs = neigh.kneighbors(val_embeddings, 5, return_distance=True)
     #print(train_ids)
     #print(decode(val_nn_idxs[:10], target_ids, ignore_flag))
 
-    print("RECALL@1", recall(decode(val_nn_idxs, train_ids, ignore_flag), target_ids))
+    print("RECALL@1", recall(decode(val_nn_idxs, train_ids, target_paths, ignore_flag), target_ids, args['filename']))
 
 
 if __name__ == '__main__':
