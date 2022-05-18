@@ -88,9 +88,14 @@ def main():
 
     plt.scatter(vis_x, vis_y, c=b, cmap=plt.cm.get_cmap("jet", classes_count), marker='.')
     plt.colorbar(ticks=range(classes_count))
+    print(classes)
+
+    #plt.legend(classes)
     plt.clim(-0.5, classes_count-0.5)
     filepath = './cluster_images/' + args['filename'] + '.png'
     plt.savefig(filepath, dpi=300)
+    for i in range(len(classes)):
+        print("{}: {}".format(i, classes[i]))
     #plt.show()
 
 if __name__ == '__main__':

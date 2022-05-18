@@ -62,7 +62,7 @@ def pickle_to_embeddings(data):
     for cl in list(data.keys()):
         for embedding in data[cl]:
             #print(len(data[cl]))
-            data_embeddings.append(embedding)
+            data_embeddings.append(embedding['embedding'])
             data_ids.append(cl)
     return data_embeddings, data_ids
 

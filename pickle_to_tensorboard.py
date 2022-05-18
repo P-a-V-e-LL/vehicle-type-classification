@@ -25,8 +25,8 @@ def main():
     for emb in embeddings.keys():
       for mas in embeddings[emb]:
           f_w.write("{}\n".format(emb))
-          for i in range(len(mas)):
-              f.write("{}\t".format(mas[i]))
+          for i in range(len(mas['embedding'])):
+              f.write("{}\t".format(mas['embedding'][i]))
           f.write("\n")
     f.close()
     f_w.close()

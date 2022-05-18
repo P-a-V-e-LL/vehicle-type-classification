@@ -48,10 +48,6 @@ def get_arguments():
     )
     return vars(ap.parse_args())
 
-model_path = "./models/model_20211203_rmsprop.h5"   # путь к модели
-test_image = r'/home/pavel/Desktop/University/Diplom/test (not in val)/dataset/Chevrolet Captiva/Chevrolet Captiva 2013_81616476.jpg'       # путь к изображению для распознавания
-pickle_file = "./embedding_data/dataset3.11_val.pickle"               # путь к .pickle файлу сохраненных эмбеддингов
-
 def get_v(filename, model, required_size=(160, 160)):
   image = Image.open(filename)
   image = asarray(image)
@@ -102,9 +98,8 @@ def main():
     test_embedding = get_v(args["test_image_path"], model)
 
     for i in class_embeddings.keys():
-        #if i == "Chevrolet Niva":
         for embedding in class_embeddings[i]:
-            distanse = get_distance(test_embedding, embedding)
+            distanse = get_distance(test_embedding, embedding['embedding'])
             if (distanse < args["min_dist"]):
                 nearest_list = add_distance(i, distanse, nearest_list, args["knn_count"])
     print_dist(nearest_list)

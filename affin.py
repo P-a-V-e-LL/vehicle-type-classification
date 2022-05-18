@@ -5,6 +5,7 @@ import imageio
 import imgaug as ia
 from imgaug import augmenters as iaa
 import argparse
+import uuid
 
 '''Добавление к изоюражению различных эффектов и сохранение их.
 ДЛЯ ЧАСТНОГО СЛУЧАЯ!'''
@@ -126,7 +127,7 @@ def main():
         while (len(os.listdir(car_class)) < args['img_count']):  # здесь указывается общее число изображений в каждом классе, по умолчанию 210
             for image in base:
                 car_image = imageio.imread(os.path.join(car_class, image))
-                new = save_dir + "/" + "car_"+ str(random.randint(1, 100000)) +".jpg"
+                new = save_dir + "/" + str(uuid.uuid4().hex) + "_affin_" + str(random.randint(1, 10000000)).zfill(8) +".jpg"
                 print("Saving", new)
                 car_image = augment(car_image)
                 imageio.imwrite(new, car_image)

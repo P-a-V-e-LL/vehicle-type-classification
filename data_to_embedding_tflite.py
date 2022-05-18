@@ -55,7 +55,8 @@ def main():
             interpreter.set_tensor(input_details[0]['index'], input_data)
             interpreter.invoke()
             output_data = interpreter.get_tensor(output_details[0]['index'])
-            embeddings[cl].append(output_data)
+            car_to_add = {'uid': car, 'path': os.path.join(path, car), 'embedding': output_data}
+            embeddings[cl].append(car_to_add)
         print("{0} saved.".format(cl))
 
     f = open("./embedding_data/" + args['filename'] + ".pickle", "wb+")

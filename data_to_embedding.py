@@ -90,7 +90,8 @@ def class_to_embedding_list(dir, n, model):
         if i != n:
             o = os.path.join(dir, img)
             emb = get_v(o, model)
-            embeddings.append(emb)
+            car_to_add = {'uid': img, 'path': o, 'embedding': emb}
+            embeddings.append(car_to_add)
             i += 1
         else:
             break
