@@ -18,6 +18,14 @@ pip install -r requirements.txt
 ```
 4.Перейти в папку car_detect. Использовать скрипт use_to_install.sh
 
+# best_threshold.py
+
+Вычисляет лучший коэффицент близости векторов.
+
+Аргументы:
+- --train_data - путь к .pickle файлу с обучающими данными.
+- --val_data - путь к .pickle файлу с валидационными данными.
+
 # recall.py
 
 Вычисляет метрику RECALL@1.
