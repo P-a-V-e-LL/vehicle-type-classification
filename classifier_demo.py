@@ -43,7 +43,7 @@ def image_to_np(filename):
 
 def main():
     args = get_arguments()
-    o = Classifier(args['model_path'], args['pickle_file_path'], 16)
+    o = Classifier(args['model_path'], args['pickle_file_path'], 160)
     recall_metric = 0
     recall_count = 0
     time_list = []
@@ -52,9 +52,9 @@ def main():
     for cl in os.listdir(args['test_dir_path']):
         path = os.path.join(args['test_dir_path'], cl)
         for car in os.listdir(path):
-            embedding, d = o.get_predict(image_to_np(os.path.join(path, car)))
-            sl += d
-            #embedding = o.get_predict(image_to_np(os.path.join(path, car)))
+            #embedding, d = o.get_predict(image_to_np(os.path.join(path, car)))
+            #sl += d
+            embedding = o.get_predict(image_to_np(os.path.join(path, car)))
             recall_count += 1
             time_count += 1
             recall_metric += recall1(embedding['model'], cl)

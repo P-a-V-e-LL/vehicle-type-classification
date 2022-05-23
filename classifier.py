@@ -8,7 +8,7 @@ import cv2
 import pickle
 import tflite_runtime.interpreter as tflite
 #import tensorflow as tf
-#from tensorflow.keras.models import load_model
+from tensorflow.keras.models import load_model
 
 def pickle_to_data(fname):
     '''Выгружает данные из файла в словарь.'''
@@ -74,10 +74,12 @@ class Classifier:
         start_time = time.time()
 
         output_data = self.get_embedding_vector(image)
+        #output_data = self.get_embedding(image)
+
 
         for car in self.pickle_data.keys():
             for embedding in self.pickle_data[car]:
-                distance = self.get_distance(output_data, embedding)
+                distance = self.get_distance(output_data, embedding['embedding'])
                 if distance < self.min_distance:
                     knn_list = self.add_distance(car, distance, knn_list, 11)
         recognize_time = time.time() - start_time
