@@ -8,7 +8,7 @@ import cv2
 import pickle
 import tflite_runtime.interpreter as tflite
 #import tensorflow as tf
-from tensorflow.keras.models import load_model
+#from tensorflow.keras.models import load_model
 
 def pickle_to_data(fname):
     '''Выгружает данные из файла в словарь.'''
