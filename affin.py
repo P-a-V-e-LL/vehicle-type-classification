@@ -79,27 +79,29 @@ def augment(img):
     )
     seq = iaa.Sequential(
         [
-            sometimes(iaa.CropAndPad(percent=(-0.1, 0))),
-            affine,
             iaa.SomeOf((1, 5),
             [
                 sometimes(
                     iaa.OneOf([
+                        sometimes(iaa.OneOf([
+                            iaa.Rain(nb_iterations=(1, 2), drop_size=(0.10, 0.18)),
+                            iaa.Snowflakes(flake_size=(0.6, 0.7), speed=(0.001, 0.02)),
+                            iaa.Fog(0)
+                        ])),
                         iaa.OneOf([
                             iaa.GaussianBlur((1, 1.2)),
-                            iaa.AverageBlur(k=(1, 3)),
+                            iaa.AverageBlur(k=(1, 2)),
                             iaa.MedianBlur(k=(1, 3)),
                             iaa.MotionBlur(k=(3, 5))
                         ]),
-                        iaa.GammaContrast(gamma=[1.0, 2.0]),
+                        iaa.GammaContrast(gamma=[1.0, 1.5]),
                         iaa.AdditiveGaussianNoise(loc=0, scale=(0.0, 0.005*255), per_channel=0.001)
                     ])
                 ),
-                sometimes(iaa.Fliplr(0.5)),
                 sometimes(iaa.OneOf([
-                    iaa.Rain(drop_size=(0.10, 0.15)),
-                    iaa.Snowflakes(flake_size=(0.7, 0.75), speed=(0.001, 0.03)),
-                    iaa.Fog(0)
+                    affine,
+                    sometimes(iaa.Fliplr(0.5)),
+                    sometimes(iaa.CropAndPad(percent=(-0.1, 0)))
                 ]))
             ], random_order=True)
         ], random_order=True)

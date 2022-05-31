@@ -15,3 +15,5 @@ yolox/
 env3.6/
 reports/
 recall/
+tflite_runtime-2.7.0-cp36-cp36m-linux_x86_64.whl
+tflite_runtime-2.7.0-cp36-cp36m-linux_aarch64.whl
