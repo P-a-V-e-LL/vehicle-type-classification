@@ -193,9 +193,9 @@ def main():
 
 
 if __name__ == '__main__':
-    #main()
-    existing_data = os.listdir("./reports/")
-    reports = []
-    for report in existing_data:
-        reports.append(report.replace('.json', ''))
-    get_all_reports("https://b2b-api.spectrumdata.ru/b2b/api/v1/user/reports?_content=true&_query=_all&_size=100&_offset=0&_page=1&_calc_total=false&_detailed=false", auth, reports)
+    main()
+    #existing_data = os.listdir("./reports/")
+    #reports = []
+    #for report in existing_data:
+    #    reports.append(report.replace('.json', ''))
+    #get_all_reports("https://b2b-api.spectrumdata.ru/b2b/api/v1/user/reports?_content=true&_query=_all&_size=100&_offset=0&_page=1&_calc_total=false&_detailed=false", auth, reports)

@@ -13,12 +13,10 @@ def get_arguments():
     )
     return vars(ap.parse_args())
 
-train_dir = args['root_dir'] + "/train"
-val_dir = args['root_dir'] + "/val"
-
-
 def main():
     args = get_arguments()
+    train_dir = args['root_dir'] + "/train"
+    val_dir = args['root_dir'] + "/val"
     for car_class in os.listdir(train_dir):
         print(car_class)
         item = os.path.join(train_dir, car_class)
