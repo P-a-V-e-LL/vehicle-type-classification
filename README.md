@@ -18,6 +18,19 @@ pip install -r requirements.txt
 ```
 4.Перейти в папку car_detect. Использовать скрипт use_to_install.sh
 
+# data_detect_to_annotator.py
+
+Детектирует классы прямоугольников и записывает отчеты в структуру для просмотра в аннотаторе.
+
+Аргументы:
+- --model - путь до модели в формате onnx.
+- --data_path - путь до данных root_dir
+
+Пример запуска:
+```
+python cnn_predict.py --model car_detect/five_car_class_yolox_s_190122.onnx --data_path ./platesmania/
+```
+
 # best_threshold.py
 
 Вычисляет лучший коэффицент близости векторов.
