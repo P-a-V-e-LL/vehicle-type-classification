@@ -2,7 +2,6 @@ car_detect/
 data/
 env/
 logs/
-cluster_images/
 models/
 models/facenet_keras.h5
 models/model_20211203_rmsprop.h5
